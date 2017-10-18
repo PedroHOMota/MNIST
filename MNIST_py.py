@@ -4,7 +4,7 @@ import PIL as pil
 import gzip
 import urllib.request as rs
 import os
-
+import time
 
 #ToDo
 #Implement download the data and extracting it
@@ -46,8 +46,17 @@ def extractIMG(): #variable will be used to dictate the number of imgs to be ext
         print("Number of Imgs: "+str(ni))
         print("Number of rows: "+str(nr))
         print("Number of cols: "+str(nc))
-         
-        img=[[[int.from_bytes(f.read(1),byteorder='big') for j in range (28)] for i in range(28)] for n in range(129)]
+        img=[[]]
+        aux=[]
+        now=time.time()
+        print("Now "+str(now))
+        for i in range(ni):
+            print(i)
+            #for j in range (nr):
+               # aux.insert(j, f.read(28))
+            img.insert(i, f.read(28*28))
+        print(time.time()-now)
+        #img=[[[int.from_bytes(f.read(1),byteorder='big') for j in range (28)] for i in range(28)] for n in range(129)]
    
     #f.closed()
     return img
@@ -63,22 +72,23 @@ def extractLBL():
     return labels
 
 def printIMG(imgArray,imgN): #Print the image to  the console
-    aux=""    
+    aux=0    
     for i in range(0,28):
         for j in range(0,28):
-            if(imgArray[imgN][i][j]>127):
+            if(imgArray[imgN][aux]>127):
                 print("#", end='')
             else:
                 print(".", end='')
+            aux+=1
         print('\n')
 
 def SaveIMG(imgName,imgArray): #Convert the array and save it as a png image
-    arr=[]
-    a=0
-    for i in range(0,28): #Transform the 2d into a 1d
-            for j in range(0,28):
-                arr.insert(a,imgArray[i][j])
-                a=a+1
+    #arr=[]
+    #a=0
+    #for i in range(0,28): #Transform the 2d into a 1d
+    #        for j in range(0,28):
+    #            arr.insert(a,imgArray[i][j])
+    #            a=a+1
 
     im=Image.new("L",(28,28)) #B&W
     #im.putdata(arr)
@@ -86,13 +96,13 @@ def SaveIMG(imgName,imgArray): #Convert the array and save it as a png image
     im.save("test-"+imgName+".png","PNG")
     #"train-%05i-%i.png" % (i,50)
  
-DonwloadFile()
+#DonwloadFile()
 imgs=extractIMG()
-lbl=extractLBL()
+#lbl=extractLBL()
 printIMG(imgs,128)
 print("Started saving")
-for n in range(len(imgs)):
-    SaveIMG(n+"-"+lbl[n],imgs[n])
+#for n in range(len(imgs)):
+#    SaveIMG(n+"-"+lbl[n],imgs[n])
 
 #Reference
 #https://stackoverflow.com/questions/39969045/parsing-yann-lecuns-mnist-idx-file-formatv
