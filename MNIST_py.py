@@ -45,11 +45,11 @@ def extractIMG():
         img=[[]]
         aux=[]
         now=time.time()
-        print("Now "+str(now))
+        
         for i in range(ni):
             print(i)
             img.insert(i, f.read(28*28)) #Read all bits from image at once for better performance
-        print(time.time()-now)
+        
     f.close()
     return img
 
@@ -74,16 +74,19 @@ def printIMG(imgArray,imgN): #Print the image to  the console
             aux+=1
         print('\n')
 
-def printIMGAll(imgArray): #Print all images to  the console
+def printIMGAll(imgArray,number): #Print all images to  the console
     aux=0
-    for i in range(len(imgArray)):
-        for j in range(0,28*28):
-                if(imgArray[i][j]>127):
+    
+    for k in range(28):
+        for j in range(28):
+                if(imgArray[number][aux]>127):
                     print("#", end='')
                 else:
                     print(".", end='')
-                
-        print('\n')
+                aux+=1
+        print("\n")
+        
+
 
 def SaveIMG(imgNumber,imgLabel,imgArray): #Receive the array corresponding to the image and save it as png
     im=Image.new("L",(28,28)) #B&W
@@ -95,8 +98,15 @@ def SaveIMG(imgNumber,imgLabel,imgArray): #Receive the array corresponding to th
 DonwloadFile()
 imgs=extractIMG()
 lbl=extractLBL()
-#printIMGAll(imgs)
-print("Started saving")
+while(True):
+    option=int(input("Enter a number from 0 to 59999\nor Enter -1 to exit: "))
+    if(option >59999 or option < 0):
+        break;
+    
+    printIMGAll(imgs,option)
+    print("\n")
+
+print("Saving all images")
 
 if not os.path.exists("Images"):
         os.makedirs("Images")
