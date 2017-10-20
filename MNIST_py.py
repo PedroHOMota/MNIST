@@ -6,23 +6,21 @@ import urllib.request as rs
 import os
 import time
 
-#ToDo
-#Implement download the data and extracting it
 def DonwloadFile():
-    if not os.path.exists("Downloads"):
+    if not os.path.exists("Downloads"): #Check if folder exits, if not, create it
         os.makedirs("Downloads")
-    if not os.path.isfile("Downloads//trainIMG.gz"):
+    if not os.path.isfile("Downloads//trainIMG.gz"): #Check if file exits, if not, create it
         imgD=rs.urlretrieve("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz", "Downloads//trainIMG.gz")
 
     if not os.path.isfile("Downloads//trainLBL.gz"):
         lblsD=rs.urlretrieve("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz", "Downloads//trainLBL.gz")
 
-    with open("Downloads//trainIMG.gz","rb") as f:
+    with open("Downloads//trainIMG.gz","rb") as f: #Decompressing gzipped img file
         img=f.read()
         img=gzip.decompress(img)
         f.close()
 
-    with open("Downloads//train-image","wb") as output:
+    with open("Downloads//train-image","wb") as output: #Saving the decompressed file from memory to disk
         output.write(img)
         output.close()
 
@@ -35,7 +33,7 @@ def DonwloadFile():
         output.write(img)
         output.close()
    
-def extractIMG(): #variable will be used to dictate the number of imgs to be extracted
+def extractIMG(): 
     with open("Downloads\\train-image","rb") as f:
         byte=f.read(16) #Reading the magical number, number of images, number of rows and number of columns at once
         mn,ni,nr,nc=struct.unpack(">IIII",byte) #Converting to big endian; Each I represents 4 big endian bytes
@@ -48,15 +46,11 @@ def extractIMG(): #variable will be used to dictate the number of imgs to be ext
         aux=[]
         now=time.time()
         print("Now "+str(now))
-        for i in range(10):
+        for i in range(ni):
             print(i)
-            #for j in range (nr):
-               # aux.insert(j, f.read(28))
-            img.insert(i, f.read(28*28))
+            img.insert(i, f.read(28*28)) #Read all bits from image at once for better performance
         print(time.time()-now)
-        #img=[[[int.from_bytes(f.read(1),byteorder='big') for j in range (28)] for i in range(28)] for n in range(129)]
-   
-    #f.closed()
+    f.close()
     return img
 
 def extractLBL():
@@ -66,7 +60,7 @@ def extractLBL():
         print(mn,ni)
         labels=[int.from_bytes(f.read(1),byteorder='big') for n in range(ni)]
         
-    #f.closed()
+        f.close()
     return labels
 
 def printIMG(imgArray,imgN): #Print the image to  the console
@@ -80,37 +74,28 @@ def printIMG(imgArray,imgN): #Print the image to  the console
             aux+=1
         print('\n')
 
-def printIMGAll(imgArray): #Print the image to  the console
+def printIMGAll(imgArray): #Print all images to  the console
     aux=0
-    for a in range(len(imgArray)):
-        for i in range(0,28):
-            for j in range(0,28):
-                if(imgArray[a][aux]>127):
+    for i in range(len(imgArray)):
+        for j in range(0,28*28):
+                if(imgArray[i][j]>127):
                     print("#", end='')
                 else:
                     print(".", end='')
-                aux+=1
-            print('\n')
+                
+        print('\n')
 
-def SaveIMG(imgNumber,imgLabel,imgArray): #Convert the array and save it as a png image
-    #arr=[]
-    #a=0
-    #for i in range(0,28): #Transform the 2d into a 1d
-    #        for j in range(0,28):
-    #            arr.insert(a,imgArray[i][j])
-    #            a=a+1
-
+def SaveIMG(imgNumber,imgLabel,imgArray): #Receive the array corresponding to the image and save it as png
     im=Image.new("L",(28,28)) #B&W
     im.putdata(imgArray)
-    #img=pil.fromarray(imgArray)
     im.save("Images\\train-%05i-%i.png" % (imgNumber,imgLabel),"PNG")
-    #"test-"+imgName+".png"
+   
     
  
 DonwloadFile()
 imgs=extractIMG()
 lbl=extractLBL()
-#printIMGAll()
+#printIMGAll(imgs)
 print("Started saving")
 
 if not os.path.exists("Images"):
