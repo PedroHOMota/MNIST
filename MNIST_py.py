@@ -35,10 +35,8 @@ def DonwloadFile():
         output.write(img)
         output.close()
    
-
-
 def extractIMG(): #variable will be used to dictate the number of imgs to be extracted
-    with open("trainIMG.idx3-ubyte","rb") as f:
+    with open("Downloads\\train-image","rb") as f:
         byte=f.read(16) #Reading the magical number, number of images, number of rows and number of columns at once
         mn,ni,nr,nc=struct.unpack(">IIII",byte) #Converting to big endian; Each I represents 4 big endian bytes
         img=[]
@@ -50,7 +48,7 @@ def extractIMG(): #variable will be used to dictate the number of imgs to be ext
         aux=[]
         now=time.time()
         print("Now "+str(now))
-        for i in range(ni):
+        for i in range(10):
             print(i)
             #for j in range (nr):
                # aux.insert(j, f.read(28))
@@ -62,7 +60,7 @@ def extractIMG(): #variable will be used to dictate the number of imgs to be ext
     return img
 
 def extractLBL():
-    with open("train-labels.idx1-ubyte","rb") as f:
+    with open("Downloads\\train-label","rb") as f:
         byte=f.read(8)
         mn,ni=struct.unpack(">II",byte)
         print(mn,ni)
@@ -82,7 +80,19 @@ def printIMG(imgArray,imgN): #Print the image to  the console
             aux+=1
         print('\n')
 
-def SaveIMG(imgName,imgArray): #Convert the array and save it as a png image
+def printIMGAll(imgArray): #Print the image to  the console
+    aux=0
+    for a in range(len(imgArray)):
+        for i in range(0,28):
+            for j in range(0,28):
+                if(imgArray[a][aux]>127):
+                    print("#", end='')
+                else:
+                    print(".", end='')
+                aux+=1
+            print('\n')
+
+def SaveIMG(imgNumber,imgLabel,imgArray): #Convert the array and save it as a png image
     #arr=[]
     #a=0
     #for i in range(0,28): #Transform the 2d into a 1d
@@ -91,18 +101,23 @@ def SaveIMG(imgName,imgArray): #Convert the array and save it as a png image
     #            a=a+1
 
     im=Image.new("L",(28,28)) #B&W
-    #im.putdata(arr)
-    img=pil.fromarray(imgArray)
-    im.save("test-"+imgName+".png","PNG")
-    #"train-%05i-%i.png" % (i,50)
+    im.putdata(imgArray)
+    #img=pil.fromarray(imgArray)
+    im.save("Images\\train-%05i-%i.png" % (imgNumber,imgLabel),"PNG")
+    #"test-"+imgName+".png"
+    
  
-#DonwloadFile()
+DonwloadFile()
 imgs=extractIMG()
-#lbl=extractLBL()
-printIMG(imgs,128)
+lbl=extractLBL()
+#printIMGAll()
 print("Started saving")
-#for n in range(len(imgs)):
-#    SaveIMG(n+"-"+lbl[n],imgs[n])
+
+if not os.path.exists("Images"):
+        os.makedirs("Images")
+
+for n in range(len(imgs)):
+    SaveIMG(n,lbl[n],imgs[n])
 
 #Reference
 #https://stackoverflow.com/questions/39969045/parsing-yann-lecuns-mnist-idx-file-formatv
